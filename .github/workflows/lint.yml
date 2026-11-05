@@ -1,0 +1,54 @@
+name: Lint Code
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint_python:
+    name: Lint Python Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Flake8
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Run Python Linter
+        run: |
+          find server -name "*.py" -exec flake8 --select=E9,F63,F7,F82 {} +
+          echo "Linted Python files successfully"
+
+  lint_js:
+    name: Lint JavaScript Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install JSHint
+        run: npm install --global jshint
+
+      - name: Run JavaScript Linter
+        run: |
+          if find server -name "*.js" -print -quit | grep -q .; then
+            find server -name "*.js" -exec jshint {} +
+          else
+            echo "No JavaScript files found to lint"
+          fi
+          echo "JavaScript lint check completed"
